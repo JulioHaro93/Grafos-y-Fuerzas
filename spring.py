@@ -40,8 +40,7 @@ def springDibujo(grafo):
                 running = False
 
         forces = {nodo: (0, 0) for nodo in grafo.nodos}
-
-        # Calcular el área del espacio bidimensional
+        
         xCoords = [nodo.valorEquis for nodo in grafo.nodos]
         yCoords = [nodo.valorYe for nodo in grafo.nodos]
         xMin, xMax = min(xCoords), max(xCoords)
@@ -56,7 +55,6 @@ def springDibujo(grafo):
         center_x = (xMin + xMax) / 2
         center_y = (yMin + yMax) / 2
 
-        # Calcular el desplazamiento para centrar el grafo en la pantalla
         offset_x = 450 - center_x 
         offset_y = 300 - center_y  
 
