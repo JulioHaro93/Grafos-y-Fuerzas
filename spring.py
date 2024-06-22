@@ -40,7 +40,7 @@ def springDibujo(grafo):
                 running = False
 
         forces = {nodo: (0, 0) for nodo in grafo.nodos}
-
+        
         xCoords = [nodo.valorEquis for nodo in grafo.nodos]
         yCoords = [nodo.valorYe for nodo in grafo.nodos]
         xMin, xMax = min(xCoords), max(xCoords)
@@ -54,8 +54,8 @@ def springDibujo(grafo):
         center_x = (xMin + xMax) / 2
         center_y = (yMin + yMax) / 2
 
-        offset_x = 450 - center_x  
-        offset_y = 300 - center_y 
+        offset_x = 450 - center_x 
+        offset_y = 300 - center_y  
 
         for nodo in grafo.nodos:
             nodo.valorEquis += offset_x
