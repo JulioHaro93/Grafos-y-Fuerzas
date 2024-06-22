@@ -28,7 +28,7 @@ class Spring:
 
 def springDibujo(grafo):
     pygame.init()
-    screen = pygame.display.set_mode((900, 600))
+    screen = pygame.display.set_mode((900, 60))
     clock = pygame.time.Clock()
     running = True
 
@@ -41,7 +41,6 @@ def springDibujo(grafo):
 
         forces = {nodo: (0, 0) for nodo in grafo.nodos}
 
-        # Calcular el área del espacio bidimensional
         xCoords = [nodo.valorEquis for nodo in grafo.nodos]
         yCoords = [nodo.valorYe for nodo in grafo.nodos]
         xMin, xMax = min(xCoords), max(xCoords)
@@ -52,13 +51,11 @@ def springDibujo(grafo):
 
         k = spring.c4 * mad.sqrt(area / len(grafo.aristas))
 
-        # Calcular el centro del grafo
         center_x = (xMin + xMax) / 2
         center_y = (yMin + yMax) / 2
 
-        # Calcular el desplazamiento para centrar el grafo en la pantalla
-        offset_x = 450 - center_x  # 450 es la mitad del ancho de la pantalla (900 / 2)
-        offset_y = 300 - center_y  # 300 es la mitad de la altura de la pantalla (600 / 2)
+        offset_x = 450 - center_x  
+        offset_y = 300 - center_y 
 
         for nodo in grafo.nodos:
             nodo.valorEquis += offset_x
