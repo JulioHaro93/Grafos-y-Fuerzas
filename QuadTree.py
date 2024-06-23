@@ -1,6 +1,6 @@
 import pygame
 import numpy as np
-from spring import Spring  # Suponiendo que Spring está correctamente implementado en spring.py
+from spring import Spring
 import random
 import math as mad
 
