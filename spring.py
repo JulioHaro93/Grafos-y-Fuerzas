@@ -1,24 +1,13 @@
-import matplotlib.pyplot as plt
-import random
-import networkx as nx
-import math as mad
 import pygame
-import numpy as np
+import math as mad
+import random
 
 class Spring:
     def __init__(self):
-        self.c1=2.0
-        self.c2=1.0
-        self.c3=1.0
-        self.c4=0.0001
-    def fa(self,d, k):
-        return pow(d,2)/k
-    def fr(self,d,k):
-        return -pow(k,2)/d
-
-class Spring:
-    def __init__(self):
-        self.c4 = 0.1
+        self.c1 = 2.0
+        self.c2 = 1.0
+        self.c3 = 1.0
+        self.c4 = 0.01
 
     def fa(self, d, k):
         return pow(d, 2) / k
@@ -28,7 +17,7 @@ class Spring:
 
 def springDibujo(grafo):
     pygame.init()
-    screen = pygame.display.set_mode((900, 60))
+    screen = pygame.display.set_mode((900, 600))
     clock = pygame.time.Clock()
     running = True
 
@@ -39,61 +28,51 @@ def springDibujo(grafo):
             if event.type == pygame.QUIT:
                 running = False
 
-        forces = {nodo: (0, 0) for nodo in grafo.nodos}
-        
-        xCoords = [nodo.valorEquis for nodo in grafo.nodos]
-        yCoords = [nodo.valorYe for nodo in grafo.nodos]
-        xMin, xMax = min(xCoords), max(xCoords)
-        yMin, yMax = min(yCoords), max(yCoords)
-        width = xMax - xMin
-        height = yMax - yMin
-        area = width * height
+        forces = {nodo: [0, 0] for nodo in grafo.nodos}
+        if grafo.nodos:
+            x_coords = [nodo.valorEquis for nodo in grafo.nodos]
+            y_coords = [nodo.valorYe for nodo in grafo.nodos]
+            center_x = sum(x_coords) / len(grafo.nodos)
+            center_y = sum(y_coords) / len(grafo.nodos)
+        else:
+            center_x, center_y = 450, 300
 
-        k = spring.c4 * mad.sqrt(area / len(grafo.aristas))
-
-        center_x = (xMin + xMax) / 2
-        center_y = (yMin + yMax) / 2
-
-        offset_x = 450 - center_x 
-        offset_y = 300 - center_y  
-
-        for nodo in grafo.nodos:
-            nodo.valorEquis += offset_x
-            nodo.valorYe += offset_y
-            nodo.pos = (nodo.valorEquis, nodo.valorYe)
+        offset_x = 450 - center_x
+        offset_y = 300 - center_y
 
         for arista in grafo.aristas:
             u, v = arista.origen, arista.destino
 
             dx = u.valorEquis - v.valorEquis
             dy = u.valorYe - v.valorYe
-            arista.distancia = mad.sqrt(dx**2 + dy**2)
+            distance = mad.sqrt(dx ** 2 + dy ** 2)
+            arista.origen.pos = [u.valorEquis, u.valorYe]
+            arista.destino.pos = [v.valorEquis, v.valorYe]
+            pygame.draw.line(screen, (155, 155, 155), u.pos, v.pos, 2)
+            if distance != 0:
+                force = spring.c4 * (distance - spring.c2)
+                fx = force * dx / distance
+                fy = force * dy / distance
 
-            if arista.distancia != 0:
-                force = spring.fa(arista.distancia, k) - spring.fr(arista.distancia, k)
-                fx = force * dx / arista.distancia
-                fy = force * dy / arista.distancia
-
-                forces[u] = (forces[u][0] + fx, forces[u][1] + fy)
-                forces[v] = (forces[v][0] - fx, forces[v][1] - fy)
-
+                forces[u][0] -= fx
+                forces[u][1] -= fy
+                forces[v][0] += fx
+                forces[v][1] += fy
         for nodo in grafo.nodos:
-            nodo.valorEquis += spring.c4 * nodo.valorEquis/forces[nodo][0]
-            nodo.valorYe += spring.c4 * nodo.valorYe/forces[nodo][1]
-            nodo.pos = (nodo.valorEquis, nodo.valorYe)
+            nodo.valorEquis += spring.c3 * forces[nodo][0] + offset_x
+            nodo.valorYe += spring.c3 * forces[nodo][1] + offset_y
 
-        screen.fill('blueviolet')
+        
+        screen.fill((0, 0, 0))
 
         for arista in grafo.aristas:
             u, v = arista.origen, arista.destino
-            pygame.draw.line(screen, (255, 255, 255), u.pos, v.pos, 2)
+            pygame.draw.line(screen, (255, 255, 0), (u.valorEquis, u.valorYe), (v.valorEquis, v.valorYe), 2)
 
         for nodo in grafo.nodos:
-            if not np.isnan(nodo.pos[0]) and not np.isnan(nodo.pos[1]):
-                enterito = int(nodo.pos[0])
-                enterote = int(nodo.pos[1])
-                pygame.draw.circle(screen, (255, 0, 0), (enterito, enterote), 1)
+            pygame.draw.circle(screen, (255, 0, 0), (int(nodo.valorEquis), int(nodo.valorYe)), 5)
 
         pygame.display.flip()
-        clock.tick(200)
+        clock.tick(20)
 
+    pygame.quit()

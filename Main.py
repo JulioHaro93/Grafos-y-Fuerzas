@@ -10,7 +10,7 @@ import math as mad
 
 grafo = Grafo()
         
-grafoMalla30 = Grafo().grafoBarabasiAlbert(500, 5, False)
+grafoMalla30 = Grafo().grafoMalla(100,1,False)
 
 x=0
 for x in range(len(grafoMalla30.nodos)):
@@ -30,10 +30,10 @@ for arista in grafo.aristas:
     grafo.aristas[i].fuerza = f
     i+=1
 
+spring = sprincito
+spring.springDibujo(grafoMalla30)
 
-#spring.springDibujo(grafoMalla30)
-
-main(grafoMalla30)
+#main(grafoMalla30)
 """
 
 Testings de otras cosillas.

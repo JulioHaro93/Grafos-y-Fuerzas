@@ -12,10 +12,10 @@ class Rectangulito:
         self.h = h
 
     def contains(self, point):
-        if (point.valorEquis > self.x - self.w and
-            point.valorEquis < self.x + self.w and
-            point.valorYe > self.x - self.h and
-            point.valorYe < self.y + self.h):
+        if (point[0].valorEquis > self.x - self.w and
+            point[0].valorEquis < self.x + self.w and
+            point[0].valorYe > self.x - self.h and
+            point[0].valorYe < self.y + self.h):
             return True
         else:
             return False
@@ -31,7 +31,8 @@ class QuadTree:
         self.sudeste = None
         self.sudoeste = None
         self.masa = 1
-
+    def toString(self):
+        return str(self.boundary)
     def subdivide(self):
         x = self.boundary.x
         y = self.boundary.y
@@ -75,12 +76,17 @@ class QuadTree:
 
         def calculateForce(node1, node2):
             force =0
-            if  hasattr(node2, 'valorEquis') == True:
-                distance_vector = np.array([node1.valorEquis - node2.valorEquis, node1.valorYe - node2.valorYe])
-                distance = np.linalg.norm(distance_vector)
-                magnitude = G * node1.masa * node2.masa / (distance ** 2 + 0.1)
-                force = magnitude * distance_vector / distance
-                return force
+            if  hasattr(node1[0], 'valorEquis') == True:
+                for x in range(len(node1)-1):
+                    if(hasattr(node2, 'valorEquis')):
+                        print(node1[0].toString())
+                        print(node2)
+                        distance_vector = np.array([node1[x].valorEquis - node2.valorEquis, node1[x].valorYe - node2.valorYe])
+                        distance = np.linalg.norm(distance_vector)
+                        magnitude = G * node1[x].masa * node2.masa / (distance ** 2 + 0.1)
+                        force = magnitude * distance_vector / distance
+                        
+                        return force
             else:
                 return force
 
@@ -92,22 +98,24 @@ class QuadTree:
                 force = np.array([0.0, 0.0])
                 for p in quad.points:
                     if p != node:
-                        #print(p)
-                        force += calculateForce(node,p)
+                        for nodo in p:
+                            force += calculateForce(node,nodo)
                 return force
             else:
-                dist = np.linalg.norm(np.array([node.valorEquis, node.valorYe]) - np.array([quad.boundary.x, quad.boundary.y]))
+                print(node)
+                
+                dist = np.linalg.norm(np.array([node[1].valorEquis, node[1].valorYe]) - np.array([quad.boundary.x, quad.boundary.y]))
                 if quad.boundary.w / dist < theta:
                     force = calculateForce(node, quad)
                     return force
                 else:
                     force = np.array([0.0, 0.0])
+                
                     force += calculateForceRecursive(quad.noreste, node)
                     force += calculateForceRecursive(quad.noroeste, node)
                     force += calculateForceRecursive(quad.sudeste, node)
                     force += calculateForceRecursive(quad.sudoeste, node)
                     return force
-
         total_force = calculateForceRecursive(self, node)
         return abs(total_force)
 
@@ -125,7 +133,7 @@ class QuadTree:
             self.sudeste.show(screen)
 
         for node in self.points:
-            pygame.draw.circle(screen, (255, 0, 0), (int(node.valorEquis), int(node.valorYe)), 2)
+            pygame.draw.circle(screen, (255, 0, 0), (int(node[0].valorEquis), int(node[0].valorYe)), 2)
 def fuerzaBruta(grafo):
     sumaDeFuerzas = 0
     i = 0
@@ -170,34 +178,45 @@ def main(grafo):
 
         
         for nodo in grafo.nodos:
-            forces = quadtree.forceBarnesHut(nodo, spring)
+            #forces = quadtree.forceBarnesHut(nodo, spring)
             #print(forces)
-            forceBH += forces
-            if forceBH[0] < fuercilla:
-                break
+            for arista in grafo.aristas:
+                forces = arista.fuerza
+                forceBH += abs(forces)
+                #print(forceBH)
+                
+                if forceBH < fuercilla:
+                    continue
+                else:
+                    break
         message2 = str("Suma de Fuerzas O(nlog(n))"+ str(forceBH))
         mensaje2 = fuente.render(message2, 1, (255, 255, 255))
         for arista in grafo.aristas:
             u, v = arista.origen, arista.destino
-            pygame.draw.line(screen, (155, 155, 155), u.pos, v.pos, 2)
-
+            #para todos menos para malla: pygame.draw.line(screen, (155, 155, 155), u.pos, v.pos, 2)
+            pygame.draw.line(screen, (135, 206, 235), (u.valorEquis, u.valorYe),(v.valorEquis,v.valorYe), 1)
         
         for nodo in grafo.nodos:
-            if not np.isnan(nodo.pos[0]) and not np.isnan(nodo.pos[1]):
-                pygame.draw.circle(screen, (255, 255, 0), (int(nodo.valorEquis), int(nodo.valorYe)), 3)
+            if not np.isnan(nodo[0].pos[0]) and not np.isnan(nodo[0].pos[1]):
+                for nodo in nodo: 
+                    #print(nodo.pos)
+                    pygame.draw.circle(screen, (255, 255, 0), nodo.pos, 5)
 
         quadtree.show(screen)
         warning1 = "La suma que calcula O(n²)" 
         warning2= "se realiza antes de pygame"
         warning3 = "por esa razón aparece estática"
+        warning4 = "En éste grafo tipo Malla se usan las 3 aristas (incluyendo diagonal)"
         warningWarning ="Warning:"
         mensaje3 = fuente.render(warning1, 1, (255, 255, 255))
         mensaje4 = fuente.render(warning2,1,(255,255,255))
         mensaje5 = fuente.render(warning3,1,(255,255,255))
         mensaje6= fuente.render(warningWarning,1,(255,255,0))
+        mensaje7 = fuente.render(warning4, 1,(255,255,255))
         screen.blit(mensaje4,(600,420))
         screen.blit(mensaje5,(600,440))
         screen.blit(mensaje6, (600, 380))
+        screen.blit(mensaje7, (600, 360))
         screen.blit(mensaje3, (600, 400))
         screen.blit(mensaje, (600, 500))
         screen.blit(mensaje2, (600, 520))
